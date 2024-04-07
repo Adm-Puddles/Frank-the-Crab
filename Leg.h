@@ -5,20 +5,41 @@
 
 class Leg {
   public:
-    Leg(int coxa_pin, int femur_pin, int tibia_pin, double coxa_len, double femur_len, double tibia_len);
-    // void calculateIK(double x, double y, double z);
+    Leg(int coxa_pin, int femur_pin, int tibia_pin, double coxa_length, double femur_length, double tibia_length, double minimum_target, double maximum_target, double minimum_angle, double maximum_angle);
+
     double theta1;
     double theta2;
     double theta3;
+    double theta1_target;
+    double theta2_target;
+    double theta3_target;
+
+    double degreesToTarget(double degree, double minTarget, double maxTarget, double minAngle, double maxAngle);
+    double radiansToDegrees(double radians);
+    double degreesToRadians(double degrees);
+    void calculateIK(double x, double y, double z);
+    void convertDegreesToTarget();
+
     int getCoxaPin() {return _coxa_pin;}
     int getFemurPin() {return _femur_pin;}
     int getTibiaPin() {return _tibia_pin;}
-    double getCoxaLen() {return _coxa_len;}
-    double getFemurLen() {return _femur_len;}
-    double getTibiaLen() {return _tibia_len;}
+
+    double getCoxaLength() {return _coxa_length;}
+    double getFemurLength() {return _femur_length;}
+    double getTibiaLength() {return _tibia_length;}
+
+    double getMinimumTarget() {return _minimum_target;}
+    double getMaximumTarget() {return _maximum_target;}
+    double getMinimumAngle() {return _minimum_angle;}
+    double getMaximumAngle() {return _maximum_angle;}
+
+    double getTheta1Target() {return theta1_target;}
+    double getTheta2Target() {return theta2_target;}
+    double getTheta3Target() {return theta3_target;}
 
   private:
     int _coxa_pin, _femur_pin, _tibia_pin;
-    double _coxa_len, _femur_len, _tibia_len;
+    double _coxa_length, _femur_length, _tibia_length, _minimum_target, _maximum_target, _minimum_angle, _maximum_angle;
 };
+
 #endif
