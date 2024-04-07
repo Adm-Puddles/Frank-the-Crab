@@ -43,11 +43,10 @@ double Leg::degreesToTarget(double degree, double minimum_target, double maximum
 
 
 //////////////////////////////////////////////////////////
-// Move servos to target positions
+// Convert degrees to 1/4 PWM signal from theta 1 2 and 3
 //////////////////////////////////////////////////////////
 
 void Leg::convertDegreesToTarget() {
-  // Convert target angle to PWM signal
   float theta1_target = degreesToTarget(radiansToDegrees(theta1) + 90, _minimum_target, _maximum_target, _minimum_angle, _maximum_angle);
   float theta2_target = degreesToTarget(radiansToDegrees(theta2) + 90, _minimum_target, _maximum_target, _minimum_angle, _maximum_angle);
   float theta3_target = degreesToTarget(radiansToDegrees(theta3) + 90, _minimum_target, _maximum_target, _minimum_angle, _maximum_angle);
