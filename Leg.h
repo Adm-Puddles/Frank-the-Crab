@@ -24,10 +24,14 @@ class Leg {
     void convertDegreesToTarget();
 
     void createWaypoint(double r, double theta, double phi);
-
-    void createWaypointArray(int num_waypoints, double r, double theta, double phi);
+    void createWaypointArray(int num_waypoints, double r, double theta);
 
     void moveToWaypoint(double max_speed);
+    double getXYZDistance (double x1, double y1, double z1, double x2, double y2, double z2);
+    double getMaxDistance();
+    double getTargetDistance(int pin);
+    void setSpeed();
+    void atTarget();
 
     int getCoxaPin() {return _coxa_pin;}
     int getFemurPin() {return _femur_pin;}
