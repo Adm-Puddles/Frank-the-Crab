@@ -25,7 +25,7 @@ class Leg {
 
     void createWaypoint(double r, double theta, double phi);
 
-    void createWaypointArray(int num_waypoints, double r, double theta, double phi, bool onGround);
+    void createWaypointArray(int num_waypoints, double r, double theta, double phi);
 
     void moveToWaypoint(double max_speed);
 
