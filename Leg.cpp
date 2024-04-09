@@ -26,7 +26,6 @@ Leg::Leg(int coxa_pin, int femur_pin, int tibia_pin, double coxa_length, double 
 ///////////////////////////////////////////////////
 // Calculate target angles for the leg class using XYZ targets and update theta variables in the leg class
 ///////////////////////////////////////////////////
-
 void Leg::calculateIK(double x, double y, double z){
     theta1 = atan(x / y);  //Find Theta 1
     double h = (sqrt( pow(y, 2) + pow(x, 2) - getCoxaLength() ) );
@@ -41,7 +40,6 @@ void Leg::calculateIK(double x, double y, double z){
 ////////////////////////////////////////////////
 // Convert degrees to PWM signal for servo positioning
 ////////////////////////////////////////////////
-
 double Leg::degreesToTarget(double degree, double minimum_target, double maximum_target, double minimum_angle, double maximum_angle) {
   return map(degree, getMinimumAngle(), getMaximumAngle(), getMinimumTarget(), getMaximumTarget());
 }
@@ -62,7 +60,6 @@ void Leg::convertDegreesToTarget() {
 //////////////////////////////////////////////////////////
 // Find XYZ coordinate and save to holding array
 //////////////////////////////////////////////////////////
-
 void Leg::createWaypoint(double r, double theta, double phi){
   waypoint[0] = r * sin(theta) * cos(phi); // X coordinate
   waypoint[1] = r * sin(theta) * sin(phi); // Y coordinate
@@ -125,11 +122,10 @@ void Leg::createWaypointArray (int num_waypoints, double radius, double theta) {
 
 
 ///////////////////////////////////////////////////////////
-// Check if servos are at target position
+// Check if servos are at target position. maestro.getMovingState returns 1 if any of the 18 servos are moving and 0 if none are
 ///////////////////////////////////////////////////////////
-
 bool Leg::atTarget(){
-  if (maestro.getMovingState(getCoxaPin()) == 0 && maestro.getMovingState(getFemurPin()) == 0 && maestro.getMovingState(getTibiaPin()) == 0){
+  if (maestro.getMovingState() = 0) {
   return true;
   }
 }
@@ -137,13 +133,54 @@ bool Leg::atTarget(){
 //////////////////////////////////////////////////////////
 // Move servos to target
 //////////////////////////////////////////////////////////
-void Leg::moveToWaypoint () {
+void Leg::moveToWaypoint (double speed) {
+
+
+
 }
+
+//////////////////////////////////////////////////////////
+// Find distance between two xyz coordinates
+//////////////////////////////////////////////////////////
+double Leg::getXYZDistance (double x1, double y1, double z1, double x2, double y2, double z2) {
+  double distance = sqrt(  pow( (x2 - x1), 2 ) + pow( (y2 - y1), 2 ) + pow( (z2-z1), 2)  );
+  return distance;
+}
+
+/////////////////////////////////////////////////////////
+// Find maximum servo travel distance for 3 servos in leg
+/////////////////////////////////////////////////////////
+double Leg::getMaxDistance() {
+  double distance = max( max( getTargetDistance(getCoxaPin()), getTargetDistance(getFemurPin())), getTargetDistance(getTibiaPin()));
+    return distance;
+}
+
+/////////////////////////////////////////////////////////
+// Find travel distance of servo to target from current position
+/////////////////////////////////////////////////////////
+double Leg::getTargetDistance(int pin) {
+  double distance = abs(maestro.getPosition(pin) - maestro.getTarget(pin));
+  return distance;
+}
+
+////////////////////////////////////////////////////////
+// Set servo speed as % of max distance to syncronize servo movements
+////////////////////////////////////////////////////////
+void Leg::setSpeed() {
+  double coxa_speed = getMaxSpeed() * (getTargetDistance(getCoxaPin()) / getMaxDistance());
+  double femur_speed = getMaxSpeed() * (getTargetDistance(getFemurPin()) / getMaxDistance());
+  double tibia_speed = getMaxSpeed() * (getTargetDistance(getTibiaPin()) / getMaxDistance());
+
+  maestro.setSpeed(getCoxaPin(), coxa_speed);
+  maestro.setSpeed(getFemurPin(), femur_speed);
+  maestro.setSpeed(getTibiaPin(), tibia_speed);
+}
+
+
 
 //////////////////////////////////////////////////////////
 // Its in the name. If you need a comment here, your beyond help
 //////////////////////////////////////////////////////////
-
 double Leg::radiansToDegrees(double radians) {
   return double(radians * 180.0 / PI);
 }
@@ -153,7 +190,6 @@ double Leg::radiansToDegrees(double radians) {
 // See above, seriously....
 // Not actually used but seemed too useful to get rid of
 //////////////////////////////////////////////////////////
-
 double Leg::degreesToRadians(double degrees) {
   double radians = degrees * (PI / 180);
   return radians;
