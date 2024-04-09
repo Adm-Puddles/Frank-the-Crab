@@ -72,25 +72,72 @@ void Leg::createWaypoint(double r, double theta, double phi){
 
  //////////////////////////////////////////////////////////
  // Create waypoint array and cycle through
+ // Note: This is probably bulky. Look at splitting vector creation and moving through the vector as their own seperate functions
+ //       Currently does not account for edge cases such as first step or end step or account for variable servo speeds so each servo reaches target in sync
  //////////////////////////////////////////////////////////
-void Leg::createWaypointArray (int num_waypoints, double r, double theta, double phi, bool onGround) {
+void Leg::createWaypointArray (int num_waypoints, double radius, double theta) {
 
+  bool onGround = true; 
+// Create and move through waypoint vector while the leg is pushing along the ground
   while (onGround) {
-    double waypoint_length = 2r / num_waypoints; 
-    for(int i = 0, i <= num_waypoints, i++) {
-      waypoints_vector.push_back(createWaypoint(r, theta, phi));
-      r -= waypoint_length;
+    double phi = 0; // Asimuth of waypoint. A value of 0 means the tip of leg stays on the ground
+    double r = radius; // Half the length of a step
+    double waypoint_length = 2r / num_waypoints; // Find distance in mm between each waypoint given number of waypoints. more waypoints means more precise motions
+    for(int i = 0; i <= num_waypoints; i++) {
+      waypoints_vector.push_back(createWaypoint(radius, theta, phi));
+      radius -= waypoint_length;
     }
 
+    // Move servos through each vector element and erase element once waypoint has been reached. set onGround to false if at the end of the waypoints
+    while (!waypoints_vector.empty()) {
+      moveToWaypoint();
+      if(atTarget()) {
+        waypoints_vector.erase(waypoints_vector.begin());
+      }
+      if (waypoints_vector.empty()) {
+        onGround = false;
+      }
+    }
   } 
+
+  r = radius; // reset radius
+
+// Create and move through waypoint vector while leg is lifting and moving to beginning of step
+  while(!onGround) {
+    double phi = 90; //Azimuth of waypoint
+    double waypoint_angle = 180 / num_waypoints; // Calculate angle to be subtracted from 180 to create waypoints_vector
+    for(int i = 0; i <= num_waypoints; i++) {
+      waypoints_vector.push_back(createWaypoint(r, theta, phi));
+      phi -= waypoint_angle;
+    }
+
+    while (!waypoints_vector.empty()) {
+      moveToWaypoint();
+      if(atTarget()) {
+        waypoints_vector.erase(waypoints_vector.begin());
+      }
+      if (waypoints_vector.empty()) {
+        onGround = true;
+      }
+    }
+  }
 }
 
+
+///////////////////////////////////////////////////////////
+// Check if servos are at target position
+///////////////////////////////////////////////////////////
+
+bool Leg::atTarget(){
+  if (maestro.getMovingState(getCoxaPin()) == 0 && maestro.getMovingState(getFemurPin()) == 0 && maestro.getMovingState(getTibiaPin()) == 0){
+  return true;
+  }
+}
 
 //////////////////////////////////////////////////////////
 // Move servos to target
 //////////////////////////////////////////////////////////
-bool Leg::moveToWaypoint () {
-  bool leg_at_target;
+void Leg::moveToWaypoint () {
 }
 
 //////////////////////////////////////////////////////////
